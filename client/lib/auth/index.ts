@@ -1,4 +1,3 @@
-import { createClient } from '@/lib/supabase/server'
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
 import type { SignUpFormData, LoginFormData } from '@/lib/validations/auth'
 
@@ -44,7 +43,7 @@ export async function signOut() {
 }
 
 export async function getCurrentUser() {
-  const supabase = await createClient()
+  const supabase = createBrowserClient()
   
   const { data: { user }, error } = await supabase.auth.getUser()
   
