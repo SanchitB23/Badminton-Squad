@@ -148,6 +148,12 @@
 
 ## Phase 8: Mobile UX & Polish
 
+### Analytics & Tracking
+
+- [ ] T059a [P] Create analytics schema for user attendance tracking in supabase/migrations/
+- [ ] T059b [P] Implement response accuracy calculation in lib/utils/analytics.ts
+- [ ] T059c [P] Add analytics data collection on session completion in app/api/sessions/[id]/complete/route.ts
+
 ### Mobile-First Enhancements
 
 - [ ] T059 [P] Optimize SessionCard layout for mobile screens in components/session/

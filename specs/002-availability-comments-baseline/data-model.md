@@ -142,6 +142,19 @@ CREATE TABLE comments (
 );
 ```
 
+### 5. Analytics Table
+
+```sql
+CREATE TABLE user_analytics (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  predicted_status response_status NOT NULL,
+  actual_attendance BOOLEAN,
+  recorded_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+```
+
 ## Business Rules Implementation
 
 ### 1. Response Management

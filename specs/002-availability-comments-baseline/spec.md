@@ -122,8 +122,8 @@ A user wants to see a filtered view of sessions they created or responded to, pr
 
 - **FR-001**: System MUST require user authentication for all core features (viewing sessions, responding, commenting)
 - **FR-001a**: System MUST require Super Admin approval for new user accounts after signup
-- **FR-001b**: System MUST support three user roles: Normal User, Super Admin, and Cred Manager (future scope)
-- **FR-002**: System MUST support email/password and phone/email with OTP authentication methods
+- **FR-001b**: System MUST support three user roles: Normal User, Super Admin, and Cred Manager (future scope - manages CRUD operations for external website credentials used for court booking)
+- **FR-002**: System MUST support email/password authentication method
 - **FR-003**: System MUST allow users to create sessions with date, time slot, and required location field, plus optional title and notes
 - **FR-003a**: System MUST prevent session edits on the same day as the session
 - **FR-003b**: System MUST use IST timezone for all session times
@@ -147,7 +147,7 @@ A user wants to see a filtered view of sessions they created or responded to, pr
 - **FR-017**: System MUST provide clear error messaging for invalid authentication attempts
 - **FR-018**: System MUST enable immediate response updates visible to all users
 - **FR-019**: System MUST retain completed sessions for 2 years and comments for 6 months
-- **FR-020**: System MUST track analytics data for games attended and response accuracy
+- **FR-020**: System MUST track user attendance analytics by recording actual attendance vs predicted response for accuracy reporting
 - **FR-021**: System MUST hard delete sessions with all associated responses and comments when creator deletes session
 
 ### Key Entities
