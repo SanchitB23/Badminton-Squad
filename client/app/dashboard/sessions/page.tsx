@@ -2,12 +2,22 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CreateSessionDialog } from "@/components/CreateSessionDialog";
 import { SessionCard } from "@/components/session/SessionCard";
 import { SessionFilters, type SessionFilter } from "@/components/session/SessionFilters";
 import { useSessions } from "@/lib/hooks/useSessions";
 import { getCurrentUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Plus, Users } from "lucide-react";
 
@@ -29,8 +39,46 @@ export default function SessionsPage() {
     sort: 'start_time',
     sortOrder: 'asc',
   });
+  const [deleteSessionId, setDeleteSessionId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
+  const router = useRouter();
   const { data: sessions, isLoading, error } = useSessions();
+
+  // Handle edit session
+  const handleEditSession = (sessionId: string) => {
+    router.push(`/dashboard/session/${sessionId}/edit`);
+  };
+
+  // Handle delete session
+  const handleDeleteSession = (sessionId: string) => {
+    setDeleteSessionId(sessionId);
+  };
+
+  // Confirm delete session
+  const confirmDeleteSession = async () => {
+    if (!deleteSessionId) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/sessions/${deleteSessionId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete session');
+      }
+
+      // Refresh sessions list
+      window.location.reload(); // Simple refresh for now
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      // TODO: Show error toast/notification
+    } finally {
+      setIsDeleting(false);
+      setDeleteSessionId(null);
+    }
+  };
 
   // Filter and sort sessions
   const filteredSessions = useMemo(() => {
@@ -211,10 +259,42 @@ export default function SessionsPage() {
                 key={session.id}
                 session={session}
                 currentUserId={user.id}
+                onEdit={handleEditSession}
+                onDelete={handleDeleteSession}
               />
             ))}
           </div>
         )}
+        
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deleteSessionId} onOpenChange={(open) => !open && setDeleteSessionId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Session</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this session? This action cannot be undone.
+                All responses and comments will also be deleted.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDeleteSession}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Session'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import { MapPin, Clock, Users, Calendar } from "lucide-react";
+import { MapPin, Clock, Users, Calendar, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -9,6 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { ResponseControls } from "@/components/response/ResponseControls";
 import { calculateCourts, getPlayabilityStatus } from "@/lib/utils/courts";
 
@@ -36,9 +45,11 @@ interface Session {
 interface SessionCardProps {
   session: Session;
   currentUserId?: string;
+  onEdit?: (sessionId: string) => void;
+  onDelete?: (sessionId: string) => void;
 }
 
-export function SessionCard({ session, currentUserId }: SessionCardProps) {
+export function SessionCard({ session, currentUserId, onEdit, onDelete }: SessionCardProps) {
   const startTime = new Date(session.start_time);
   const endTime = new Date(session.end_time);
   const courts = calculateCourts(session.response_counts.COMING);
@@ -49,6 +60,15 @@ export function SessionCard({ session, currentUserId }: SessionCardProps) {
   cutoffTime.setDate(cutoffTime.getDate() - 1);
   cutoffTime.setHours(0, 0, 0, 0);
   const isResponseDisabled = new Date() >= cutoffTime;
+
+  // Check if current user is the session creator
+  const isCreator = currentUserId === session.created_by.id;
+  
+  // Check if session can be edited (not on same day)
+  const sessionDate = new Date(session.start_time);
+  const today = new Date();
+  const isSameDay = sessionDate.toDateString() === today.toDateString();
+  const canEdit = isCreator && !isSameDay;
 
   const getStatusColor = (status: typeof playability.status) => {
     switch (status) {
@@ -78,9 +98,53 @@ export function SessionCard({ session, currentUserId }: SessionCardProps) {
               Created by {session.created_by.name || "Unknown"}
             </CardDescription>
           </div>
-          <div className="text-right text-sm text-muted-foreground">
-            <div>{format(startTime, "MMM d")}</div>
-            <div>{format(startTime, "EEE")}</div>
+          
+          <div className="flex items-center gap-2">
+            <div className="text-right text-sm text-muted-foreground">
+              <div>{format(startTime, "MMM d")}</div>
+              <div>{format(startTime, "EEE")}</div>
+            </div>
+            
+            {/* Session Actions Dropdown - Only show for session creator */}
+            {isCreator && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    disabled={!canEdit}
+                    asChild={canEdit}
+                  >
+                    {canEdit ? (
+                      <Link href={`/dashboard/session/${session.id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit session
+                      </Link>
+                    ) : (
+                      <div className="flex items-center">
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit session</span>
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (Same day)
+                        </span>
+                      </div>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete?.(session.id)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete session
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </CardHeader>

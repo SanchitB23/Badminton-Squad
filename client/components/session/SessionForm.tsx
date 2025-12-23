@@ -22,20 +22,40 @@ import { Loader2, Calendar, Clock, MapPin, FileText } from "lucide-react";
 interface SessionFormProps {
   onSuccess?: () => void;
   onLoadingChange?: (loading: boolean) => void;
+  mode?: 'create' | 'edit';
+  initialData?: {
+    id?: string;
+    title?: string;
+    description?: string;
+    location: string;
+    start_time: string;
+    end_time: string;
+  };
 }
 
-export function SessionForm({ onSuccess, onLoadingChange }: SessionFormProps) {
+export function SessionForm({ onSuccess, onLoadingChange, mode = 'create', initialData }: SessionFormProps) {
   const [generalError, setGeneralError] = useState("");
   const createSession = useCreateSession();
+
+  // Convert datetime string to datetime-local format
+  const formatDateTimeLocal = (dateTimeString: string) => {
+    const date = new Date(dateTimeString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
 
   const form = useForm<SessionFormData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      start_time: "",
-      end_time: "",
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      location: initialData?.location || "",
+      start_time: initialData?.start_time ? formatDateTimeLocal(initialData.start_time) : "",
+      end_time: initialData?.end_time ? formatDateTimeLocal(initialData.end_time) : "",
     },
   });
 
@@ -44,7 +64,25 @@ export function SessionForm({ onSuccess, onLoadingChange }: SessionFormProps) {
     onLoadingChange?.(true);
 
     try {
-      await createSession.mutateAsync(data);
+      if (mode === 'edit' && initialData?.id) {
+        // Handle session update
+        const response = await fetch(`/api/sessions/${initialData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to update session');
+        }
+      } else {
+        // Handle session creation
+        await createSession.mutateAsync(data);
+      }
+      
       onSuccess?.();
     } catch (error: any) {
       const errorMessage = formatErrorMessage(error);
@@ -216,10 +254,10 @@ export function SessionForm({ onSuccess, onLoadingChange }: SessionFormProps) {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Creating Session...
+                {mode === 'edit' ? 'Updating Session...' : 'Creating Session...'}
               </>
             ) : (
-              "Create Session"
+              mode === 'edit' ? 'Update Session' : 'Create Session'
             )}
           </Button>
         </div>

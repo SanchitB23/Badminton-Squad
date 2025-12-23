@@ -122,12 +122,12 @@
 
 ### Session Management
 
-- [ ] T049 [US5] Add edit/delete buttons to SessionCard for creators in components/session/SessionCard.tsx
-- [ ] T050 [US5] Create session edit page in app/dashboard/session/[id]/edit/page.tsx
-- [ ] T051 [US5] Implement session update API endpoint in app/api/sessions/[id]/route.ts
-- [ ] T052 [US5] Add same-day edit restriction logic in session validation
-- [ ] T053 [US5] Implement session deletion with confirmation dialog
-- [ ] T054 [US5] Handle cascade deletion of responses and comments on session delete
+- [x] T049 [US5] Add edit/delete buttons to SessionCard for creators in components/session/SessionCard.tsx
+- [x] T050 [US5] Create session edit page in app/dashboard/session/[id]/edit/page.tsx
+- [x] T051 [US5] Implement session update API endpoint in app/api/sessions/[id]/route.ts
+- [x] T052 [US5] Add same-day edit restriction logic in session validation
+- [x] T053 [US5] Implement session deletion with confirmation dialog
+- [x] T054 [US5] Handle cascade deletion of responses and comments on session delete
 
 **Checkpoint**: Session creators can manage their sessions with proper restrictions
 
