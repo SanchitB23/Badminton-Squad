@@ -15,28 +15,28 @@
 
 ### Setup & Configuration
 
-- [ ] T001 Initialize Next.js 14+ project with TypeScript and App Router in repository root
-- [ ] T002 [P] Configure Tailwind CSS with mobile-first breakpoints in tailwind.config.js
-- [ ] T003 [P] Set up ESLint, Prettier, and TypeScript strict mode in project configs
-- [ ] T004 [P] Create Supabase project and configure environment variables in .env.local
-- [ ] T005 [P] Set up Husky pre-commit hooks for linting and type checking
+- [x] T001 Initialize Next.js 14+ project with TypeScript and App Router in repository root
+- [x] T002 [P] Configure Tailwind CSS with mobile-first breakpoints in tailwind.config.js
+- [x] T003 [P] Set up ESLint, Prettier, and TypeScript strict mode in project configs
+- [X] T004 [P] Create Supabase project and configure environment variables in .env.local
+- [X] T005 [P] Set up Husky pre-commit hooks for linting and type checking
 
 ### Database & Supabase Setup
 
-- [ ] T006 Create database schema migration for profiles table in supabase/migrations/
-- [ ] T007 Create database schema migration for sessions table in supabase/migrations/
-- [ ] T008 Create database schema migration for responses table with ENUM type in supabase/migrations/
-- [ ] T009 Create database schema migration for comments table with threading in supabase/migrations/
-- [ ] T010 [P] Configure Row Level Security policies for all tables in supabase/migrations/
-- [ ] T011 [P] Set up database indexes for performance optimization in supabase/migrations/
-- [ ] T012 [P] Generate TypeScript types from Supabase schema in types/database.types.ts
+- [x] T006 Create database schema migration for profiles table in supabase/migrations/
+- [x] T007 Create database schema migration for sessions table in supabase/migrations/
+- [x] T008 Create database schema migration for responses table with ENUM type in supabase/migrations/
+- [x] T009 Create database schema migration for comments table with threading in supabase/migrations/
+- [x] T010 [P] Configure Row Level Security policies for all tables in supabase/migrations/
+- [x] T011 [P] Set up database indexes for performance optimization in supabase/migrations/
+- [x] T012 [P] Generate TypeScript types from Supabase schema in types/database.types.ts
 
 ### Core Infrastructure
 
-- [ ] T013 [P] Set up Supabase client configuration in lib/supabase/client.ts and server.ts
-- [ ] T014 [P] Create auth utilities and middleware for protected routes in lib/auth/
-- [ ] T015 [P] Set up form validation schemas using Zod in lib/validations/
-- [ ] T016 [P] Create base UI components (Button, Input, Card) in components/ui/
+- [x] T013 [P] Set up Supabase client configuration in lib/supabase/client.ts and server.ts
+- [x] T014 [P] Create auth utilities and middleware for protected routes in lib/auth/
+- [x] T015 [P] Set up form validation schemas using Zod in lib/validations/
+- [x] T016 [P] Create base UI components (Button, Input, Card) in components/ui/
 - [ ] T017 [P] Set up testing infrastructure with Jest and React Testing Library
 
 ## Phase 2: User Story 1 - Authentication & Access (P1)
@@ -47,13 +47,13 @@
 
 ### Authentication Implementation
 
-- [ ] T018 [US1] Create signup page with email/password form in app/(auth)/signup/page.tsx
-- [ ] T019 [US1] Create login page with email/password form in app/(auth)/login/page.tsx
-- [ ] T020 [US1] Implement Supabase Auth signup flow in components/auth/SignupForm.tsx
-- [ ] T021 [US1] Implement Supabase Auth login flow in components/auth/LoginForm.tsx
-- [ ] T022 [US1] Create profile creation trigger function in supabase/migrations/
-- [ ] T023 [US1] Build admin approval interface for super admin in app/admin/users/page.tsx
-- [ ] T024 [US1] Create middleware to redirect unapproved users in middleware.ts
+- [x] T018 [US1] Create signup page with email/password form in app/(auth)/signup/page.tsx
+- [x] T019 [US1] Create login page with email/password form in app/(auth)/login/page.tsx
+- [x] T020 [US1] Implement Supabase Auth signup flow in components/auth/SignupForm.tsx
+- [x] T021 [US1] Implement Supabase Auth login flow in components/auth/LoginForm.tsx
+- [x] T022 [US1] Create profile creation trigger function in supabase/migrations/
+- [x] T023 [US1] Build admin approval interface for super admin in app/admin/users/page.tsx
+- [x] T024 [US1] Create middleware to redirect unapproved users in middleware.ts
 - [ ] T025 [US1] Add error handling for auth failures in auth components
 
 **Checkpoint**: Users can register, await approval, and access protected routes after login
@@ -66,15 +66,15 @@
 
 ### Sessions Display & Response System
 
-- [ ] T026 [US2] Create sessions list page in app/dashboard/sessions/page.tsx
-- [ ] T027 [US2] Build SessionCard component with response counts in components/session/SessionCard.tsx
-- [ ] T028 [US2] Implement availability response controls in components/response/ResponseControls.tsx
-- [ ] T029 [US2] Create API endpoint for fetching sessions with counts in app/api/sessions/route.ts
-- [ ] T030 [US2] Create API endpoint for setting/updating responses in app/api/responses/route.ts
-- [ ] T031 [US2] Implement courts calculation logic (ceil(COMING/4)) in lib/utils/courts.ts
+- [x] T026 [US2] Create sessions list page in app/dashboard/sessions/page.tsx
+- [x] T027 [US2] Build SessionCard component with response counts in components/session/SessionCard.tsx
+- [x] T028 [US2] Implement availability response controls in components/response/ResponseControls.tsx
+- [x] T029 [US2] Create API endpoint for fetching sessions with counts in app/api/sessions/route.ts
+- [x] T030 [US2] Create API endpoint for setting/updating responses in app/api/responses/route.ts
+- [x] T031 [US2] Implement courts calculation logic (ceil(COMING/4)) in lib/utils/courts.ts
 - [ ] T032 [US2] Add real-time response updates using Supabase Realtime
 - [ ] T033 [US2] Create session filtering and sorting functionality in sessions list
-- [ ] T034 [US2] Add response cutoff logic (T-1 day midnight IST) in response validation
+- [x] T034 [US2] Add response cutoff logic (T-1 day midnight IST) in response validation
 
 **Checkpoint**: Users can view sessions, respond with COMING/TENTATIVE/NOT_COMING, see live updates
 
@@ -88,7 +88,7 @@
 
 - [ ] T035 [US3] Create session creation page in app/dashboard/create-session/page.tsx
 - [ ] T036 [US3] Build SessionForm component with validation in components/session/SessionForm.tsx
-- [ ] T037 [US3] Implement session creation API endpoint in app/api/sessions/route.ts
+- [x] T037 [US3] Implement session creation API endpoint in app/api/sessions/route.ts
 - [ ] T038 [US3] Add IST timezone handling and date/time validation
 - [ ] T039 [US3] Create session validation rules (future date, same-day only) in lib/validations/session.ts
 - [ ] T040 [US3] Add location field requirement and validation
