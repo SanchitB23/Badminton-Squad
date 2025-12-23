@@ -48,7 +48,8 @@ export async function proxy(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (!profile?.approved) {
+      // If profile doesn't exist or approved is not true, redirect to pending
+      if (!profile || profile.approved !== true) {
         const url = request.nextUrl.clone()
         url.pathname = '/pending-approval'
         return NextResponse.redirect(url)
@@ -66,7 +67,7 @@ export async function proxy(request: NextRequest) {
         .single()
 
       const url = request.nextUrl.clone()
-      url.pathname = profile?.approved ? '/dashboard/sessions' : '/pending-approval'
+      url.pathname = (profile && profile.approved === true) ? '/dashboard/sessions' : '/pending-approval'
       return NextResponse.redirect(url)
     }
   }

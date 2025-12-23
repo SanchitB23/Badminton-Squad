@@ -23,7 +23,7 @@ CREATE TABLE profiles (
 
 -- Create sessions table
 CREATE TABLE sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR(200),
   description TEXT,
   location VARCHAR(255) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE sessions (
 
 -- Create responses table
 CREATE TABLE responses (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   status response_status NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE responses (
 
 -- Create comments table
 CREATE TABLE comments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   parent_comment_id UUID REFERENCES comments(id) ON DELETE CASCADE,
@@ -72,7 +72,7 @@ CREATE TABLE comments (
 
 -- Create analytics table
 CREATE TABLE user_analytics (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   predicted_status response_status NOT NULL,
