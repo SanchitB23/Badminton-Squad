@@ -104,13 +104,13 @@
 
 ### Comments System
 
-- [ ] T042 [US4] Create session detail page in app/dashboard/session/[id]/page.tsx
-- [ ] T043 [US4] Build CommentThread component with nesting in components/comments/CommentThread.tsx
-- [ ] T044 [US4] Create CommentForm component for posting/editing in components/comments/CommentForm.tsx
-- [ ] T045 [US4] Implement comments API endpoints (GET/POST/PUT/DELETE) in app/api/sessions/[id]/comments/
-- [ ] T046 [US4] Add comment threading logic with parent-child relationships
-- [ ] T047 [US4] Implement comment moderation (own comments + session creator) in comment components
-- [ ] T048 [US4] Create comment validation and sanitization in lib/validations/comment.ts
+- [x] T042 [US4] Create session detail page in app/dashboard/session/[id]/page.tsx
+- [x] T043 [US4] Build CommentThread component with nesting in components/comments/CommentThread.tsx
+- [x] T044 [US4] Create CommentForm component for posting/editing in components/comments/CommentForm.tsx
+- [x] T045 [US4] Implement comments API endpoints (GET/POST/PUT/DELETE) in app/api/sessions/[id]/comments/
+- [x] T046 [US4] Add comment threading logic with parent-child relationships
+- [x] T047 [US4] Implement comment moderation (own comments + session creator) in comment components
+- [x] T048 [US4] Create comment validation and sanitization in lib/validations/comment.ts
 
 **Checkpoint**: Users can discuss sessions through threaded comments with proper moderation
 
