@@ -15,6 +15,7 @@ import {
 import { CreateSessionDialog } from "@/components/CreateSessionDialog";
 import { SessionCard } from "@/components/session/SessionCard";
 import { SessionFilters, type SessionFilter } from "@/components/session/SessionFilters";
+import { DashboardNavigation } from "@/components/DashboardNavigation";
 import { useSessions } from "@/lib/hooks/useSessions";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect, useRouter } from "next/navigation";
@@ -77,6 +78,18 @@ export default function SessionsPage() {
     } finally {
       setIsDeleting(false);
       setDeleteSessionId(null);
+    }
+  };
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' });
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force redirect anyway
+      window.location.href = '/login';
     }
   };
 
@@ -167,6 +180,10 @@ export default function SessionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <DashboardNavigation 
+        userName={user.profile?.name}
+        onSignOut={handleSignOut}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>

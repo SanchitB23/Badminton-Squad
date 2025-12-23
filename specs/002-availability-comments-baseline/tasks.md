@@ -139,10 +139,10 @@
 
 ### Activity Tracking
 
-- [ ] T055 [US6] Create My Activity page in app/dashboard/my-activity/page.tsx
-- [ ] T056 [US6] Implement activity filtering logic (created/responded) in activity components
-- [ ] T057 [US6] Create API endpoint for user activity data in app/api/users/activity/route.ts
-- [ ] T058 [US6] Add activity view navigation to main dashboard
+- [x] T055 [US6] Create My Activity page in app/dashboard/my-activity/page.tsx
+- [x] T056 [US6] Implement activity filtering logic (created/responded) in activity components
+- [x] T057 [US6] Create API endpoint for user activity data in app/api/users/activity/route.ts
+- [x] T058 [US6] Add activity view navigation to main dashboard
 
 **Checkpoint**: Users can track their session involvement through dedicated activity view
 
