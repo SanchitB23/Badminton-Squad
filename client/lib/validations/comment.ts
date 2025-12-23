@@ -89,7 +89,7 @@ export function buildCommentTree(comments: Comment[]): Comment[] {
   // Sort comments by creation date (oldest first for threading)
   const sortComments = (comments: Comment[]): Comment[] => {
     return comments
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime())
       .map(comment => ({
         ...comment,
         replies: comment.replies ? sortComments(comment.replies) : []

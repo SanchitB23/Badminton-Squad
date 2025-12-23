@@ -8,7 +8,7 @@ export function parseApiError(error: unknown): string {
   return 'An unexpected error occurred';
 }
 
-export function handleApiError(error: unknown): void {
+export function handleApiError(error: unknown): string {
   console.error('API Error:', error);
-  // You can extend this to add toast notifications, analytics, etc.
+  return parseApiError(error);
 }

@@ -3,11 +3,12 @@ import { parseApiError } from "@/lib/utils/errors";
 import type { Database } from "@/types/database.types";
 
 type Session = Database["public"]["Tables"]["sessions"]["Row"];
-type SessionWithDetails = Session & {
+type SessionWithDetails = Omit<Session, 'created_by'> & {
   creator: {
     name: string;
     email: string;
   };
+  created_by: { id: string; name?: string };
   responses: Array<{
     user_id: string;
     status: "COMING" | "NOT_COMING" | "TENTATIVE";
@@ -16,6 +17,13 @@ type SessionWithDetails = Session & {
     };
   }>;
   comments_count: number;
+  response_counts?: {
+    COMING: number;
+    TENTATIVE: number;
+    NOT_COMING: number;
+  };
+  user_response?: "COMING" | "NOT_COMING" | "TENTATIVE" | null;
+  recommended_courts?: number;
 };
 
 type SessionResponse = Database["public"]["Tables"]["responses"]["Row"];
@@ -41,7 +49,7 @@ export class SessionService {
           responses:responses (
             user_id,
             status,
-            user:profiles!session_responses_user_id_fkey (
+            user:profiles!responses_user_id_fkey (
               name
             )
           ),
@@ -56,7 +64,31 @@ export class SessionService {
         throw new Error(parsedError.message);
       }
 
-      return data as SessionWithDetails[];
+      // Compute derived fields: response_counts, user_response, recommended_courts
+      const { data: auth } = await this.supabase.auth.getUser();
+      const currentUserId = auth?.user?.id || null;
+
+      const enriched = (data || []).map((session: any) => {
+        const counts = {
+          COMING: session.responses.filter((r: any) => r.status === 'COMING').length,
+          TENTATIVE: session.responses.filter((r: any) => r.status === 'TENTATIVE').length,
+          NOT_COMING: session.responses.filter((r: any) => r.status === 'NOT_COMING').length,
+        };
+        const userResp = currentUserId
+          ? (session.responses.find((r: any) => r.user_id === currentUserId)?.status || null)
+          : null;
+        const recommended = Math.ceil(counts.COMING / 4);
+        return {
+          ...session,
+          comments_count: session.comments?.[0]?.count || 0,
+          created_by: { id: session.created_by, name: session.creator?.name },
+          response_counts: counts,
+          user_response: userResp,
+          recommended_courts: recommended,
+        } as SessionWithDetails;
+      });
+
+      return enriched;
     } catch (error: any) {
       console.error('SessionService.getSessions error:', error);
       const parsedError = parseApiError(error);
@@ -76,7 +108,7 @@ export class SessionService {
         responses:responses (
           user_id,
           status,
-          user:profiles!s_user_id_fkey (
+          user:profiles!responses_user_id_fkey (
             name
           )
         ),
@@ -89,9 +121,24 @@ export class SessionService {
       throw new Error(`Failed to fetch session: ${error.message}`);
     }
 
+    const { data: auth } = await this.supabase.auth.getUser();
+    const currentUserId = auth?.user?.id || null;
+    const counts = {
+      COMING: data.responses.filter((r: any) => r.status === 'COMING').length,
+      TENTATIVE: data.responses.filter((r: any) => r.status === 'TENTATIVE').length,
+      NOT_COMING: data.responses.filter((r: any) => r.status === 'NOT_COMING').length,
+    };
+    const userResp = currentUserId
+      ? (data.responses.find((r: any) => r.user_id === currentUserId)?.status || null)
+      : null;
+    const recommended = Math.ceil(counts.COMING / 4);
     return {
       ...data,
       comments_count: data.comments?.[0]?.count || 0,
+      created_by: { id: data.created_by, name: data.creator?.name },
+      response_counts: counts,
+      user_response: userResp,
+      recommended_courts: recommended,
     };
   }
 

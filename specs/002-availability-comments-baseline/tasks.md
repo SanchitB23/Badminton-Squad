@@ -53,7 +53,7 @@
 - [x] T021 [US1] Implement Supabase Auth login flow in components/auth/LoginForm.tsx
 - [x] T022 [US1] Create profile creation trigger function in supabase/migrations/
 - [x] T023 [US1] Build admin approval interface for super admin in app/admin/users/page.tsx
-- [x] T024 [US1] Create middleware to redirect unapproved users in middleware.ts
+- [x] T024 [US1] Configure proxy-based route protection in client/proxy.ts
 - [X] T025 [US1] Add error handling for auth failures in auth components
 
 **Checkpoint**: Users can register, await approval, and access protected routes after login

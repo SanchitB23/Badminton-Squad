@@ -83,9 +83,7 @@ export const createSessionSchema = sessionSchema;
 
 export const updateSessionResponseSchema = z.object({
   sessionId: z.string().uuid("Invalid session ID"),
-  status: z.enum(["COMING", "NOT_COMING", "TENTATIVE"], {
-    errorMap: () => ({ message: "Status must be COMING, NOT_COMING, or TENTATIVE" }),
-  }),
+  status: z.enum(["COMING", "NOT_COMING", "TENTATIVE"]),
 });
 
 export const createCommentSchema = z.object({

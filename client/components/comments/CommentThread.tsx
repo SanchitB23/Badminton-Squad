@@ -71,7 +71,8 @@ function CommentItem({
   const canReply = depth < maxDepth;
   
   // Check if comment can be edited (24 hour window)
-  const commentAge = Date.now() - new Date(comment.created_at).getTime();
+  const commentAge =
+    Date.now() - new Date(comment.created_at || Date.now()).getTime();
   const maxEditAge = 24 * 60 * 60 * 1000; // 24 hours
   const canEdit = isOwnComment && commentAge <= maxEditAge;
 
@@ -88,17 +89,20 @@ function CommentItem({
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/sessions/${sessionId}/comments/${comment.id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/api/sessions/${sessionId}/comments/${comment.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete comment');
+        throw new Error("Failed to delete comment");
       }
 
       onCommentUpdate?.();
     } catch (error) {
-      console.error('Error deleting comment:', error);
+      console.error("Error deleting comment:", error);
       // TODO: Show error toast
     } finally {
       setIsDeleting(false);
@@ -107,8 +111,14 @@ function CommentItem({
   };
 
   // Calculate indentation based on depth - reduced for mobile
-  const indentClass = depth > 0 ? `ml-2 sm:ml-${Math.min(depth * 4, 12)} border-l-2 border-gray-100 pl-2 sm:pl-3` : '';
-  
+  const indentClass =
+    depth > 0
+      ? `ml-2 sm:ml-${Math.min(
+          depth * 4,
+          12
+        )} border-l-2 border-gray-100 pl-2 sm:pl-3`
+      : "";
+
   return (
     <div className={`${indentClass}`}>
       <div className="flex gap-2 sm:gap-3 py-2 sm:py-3">
@@ -126,16 +136,21 @@ function CommentItem({
             <span className="text-xs sm:text-sm font-medium text-gray-900 truncate">
               {comment.user.name}
             </span>
-            {currentUserId === sessionCreatorId && comment.user_id === sessionCreatorId && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                Host
-              </span>
-            )}
+            {currentUserId === sessionCreatorId &&
+              comment.user_id === sessionCreatorId && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                  Host
+                </span>
+              )}
             <span className="text-xs text-gray-500 flex-shrink-0">
-              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+              {formatDistanceToNow(new Date(comment.created_at || Date.now()), {
+                addSuffix: true,
+              })}
             </span>
             {comment.updated_at !== comment.created_at && (
-              <span className="text-xs text-gray-400 flex-shrink-0">(edited)</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">
+                (edited)
+              </span>
             )}
           </div>
 
@@ -190,9 +205,7 @@ function CommentItem({
                           Edit comment
                         </DropdownMenuItem>
                       )}
-                      {canEdit && (
-                        <DropdownMenuSeparator />
-                      )}
+                      {canEdit && <DropdownMenuSeparator />}
                       <DropdownMenuItem
                         onClick={() => setShowDeleteDialog(true)}
                         className="text-red-600 focus:text-red-600"
@@ -247,13 +260,14 @@ function CommentItem({
               Delete Comment
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this comment? 
+              Are you sure you want to delete this comment?
               {comment.replies && comment.replies.length > 0 && (
                 <span className="font-medium text-red-600">
-                  {" "}This will also delete all {comment.replies.length} replies.
+                  {" "}
+                  This will also delete all {comment.replies.length} replies.
                 </span>
-              )}
-              {" "}This action cannot be undone.
+              )}{" "}
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -27,8 +27,8 @@ type User = {
   profile: {
     name: string;
     email: string;
-    approved: boolean;
-    role: string;
+    approved: boolean | null;
+    role: string | null;
   } | null;
 } | null;
 
@@ -36,13 +36,13 @@ export default function SessionsPage() {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<SessionFilter>({
-    status: 'all',
-    sort: 'start_time',
-    sortOrder: 'asc',
+    status: "all",
+    sort: "start_time",
+    sortOrder: "asc",
   });
   const [deleteSessionId, setDeleteSessionId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const router = useRouter();
   const { data: sessions, isLoading, error } = useSessions();
 
@@ -59,21 +59,21 @@ export default function SessionsPage() {
   // Confirm delete session
   const confirmDeleteSession = async () => {
     if (!deleteSessionId) return;
-    
+
     setIsDeleting(true);
     try {
       const response = await fetch(`/api/sessions/${deleteSessionId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete session');
+        throw new Error("Failed to delete session");
       }
 
       // Refresh sessions list
       window.location.reload(); // Simple refresh for now
     } catch (error) {
-      console.error('Error deleting session:', error);
+      console.error("Error deleting session:", error);
       // TODO: Show error toast/notification
     } finally {
       setIsDeleting(false);
@@ -84,12 +84,12 @@ export default function SessionsPage() {
   // Handle sign out
   const handleSignOut = async () => {
     try {
-      await fetch('/api/auth/signout', { method: 'POST' });
-      window.location.href = '/login';
+      await fetch("/api/auth/signout", { method: "POST" });
+      window.location.href = "/login";
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
       // Force redirect anyway
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   };
 
@@ -97,23 +97,30 @@ export default function SessionsPage() {
   const filteredSessions = useMemo(() => {
     if (!sessions || !user) return [];
 
-    let filtered = [...sessions];
+    // Normalize shape to ensure created_by is an object
+    let filtered = sessions.map((s: any) => ({
+      ...s,
+      created_by:
+        typeof s.created_by === "string"
+          ? { id: s.created_by, name: s.creator?.name }
+          : s.created_by,
+    }));
 
     // Apply status filter
     switch (filters.status) {
-      case 'responded':
-        filtered = filtered.filter(session => 
-          session.user_response !== null && session.user_response !== undefined
+      case "responded":
+        filtered = filtered.filter(
+          (session) =>
+            session.user_response !== null &&
+            session.user_response !== undefined
         );
         break;
-      case 'not_responded':
-        filtered = filtered.filter(session => 
-          !session.user_response
-        );
+      case "not_responded":
+        filtered = filtered.filter((session) => !session.user_response);
         break;
-      case 'created_by_me':
-        filtered = filtered.filter(session => 
-          session.created_by.id === user.id
+      case "created_by_me":
+        filtered = filtered.filter(
+          (session) => session.created_by.id === user.id
         );
         break;
       // 'all' case - no filtering needed
@@ -122,26 +129,32 @@ export default function SessionsPage() {
     // Apply sorting
     filtered.sort((a, b) => {
       let valueA: any, valueB: any;
-      
+
       switch (filters.sort) {
-        case 'start_time':
+        case "start_time":
           valueA = new Date(a.start_time);
           valueB = new Date(b.start_time);
           break;
-        case 'created_at':
+        case "created_at":
           valueA = new Date(a.created_at);
           valueB = new Date(b.created_at);
           break;
-        case 'response_count':
-          valueA = a.response_counts.COMING + a.response_counts.TENTATIVE + a.response_counts.NOT_COMING;
-          valueB = b.response_counts.COMING + b.response_counts.TENTATIVE + b.response_counts.NOT_COMING;
+        case "response_count":
+          valueA =
+            a.response_counts.COMING +
+            a.response_counts.TENTATIVE +
+            a.response_counts.NOT_COMING;
+          valueB =
+            b.response_counts.COMING +
+            b.response_counts.TENTATIVE +
+            b.response_counts.NOT_COMING;
           break;
         default:
           return 0;
       }
 
       const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
-      return filters.sortOrder === 'asc' ? comparison : -comparison;
+      return filters.sortOrder === "asc" ? comparison : -comparison;
     });
 
     return filtered;
@@ -180,7 +193,7 @@ export default function SessionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardNavigation 
+      <DashboardNavigation
         userName={user.profile?.name}
         onSignOut={handleSignOut}
       />
@@ -260,9 +273,15 @@ export default function SessionsPage() {
                 <p className="text-gray-600 mb-6">
                   Try adjusting your filters to see more sessions.
                 </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setFilters({ status: 'all', sort: 'start_time', sortOrder: 'asc' })}
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    setFilters({
+                      status: "all",
+                      sort: "start_time",
+                      sortOrder: "asc",
+                    })
+                  }
                 >
                   Clear Filters
                 </Button>
@@ -282,19 +301,24 @@ export default function SessionsPage() {
             ))}
           </div>
         )}
-        
+
         {/* Delete Confirmation Dialog */}
-        <AlertDialog open={!!deleteSessionId} onOpenChange={(open) => !open && setDeleteSessionId(null)}>
+        <AlertDialog
+          open={!!deleteSessionId}
+          onOpenChange={(open) => !open && setDeleteSessionId(null)}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Session</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this session? This action cannot be undone.
-                All responses and comments will also be deleted.
+                Are you sure you want to delete this session? This action cannot
+                be undone. All responses and comments will also be deleted.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirmDeleteSession}
                 disabled={isDeleting}
@@ -306,7 +330,7 @@ export default function SessionsPage() {
                     Deleting...
                   </>
                 ) : (
-                  'Delete Session'
+                  "Delete Session"
                 )}
               </AlertDialogAction>
             </AlertDialogFooter>
