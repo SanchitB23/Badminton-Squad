@@ -86,13 +86,13 @@
 
 ### Session Creation
 
-- [ ] T035 [US3] Create session creation page in app/dashboard/create-session/page.tsx
-- [ ] T036 [US3] Build SessionForm component with validation in components/session/SessionForm.tsx
+- [x] T035 [US3] Create session creation page in app/dashboard/create-session/page.tsx
+- [x] T036 [US3] Build SessionForm component with validation in components/session/SessionForm.tsx
 - [x] T037 [US3] Implement session creation API endpoint in app/api/sessions/route.ts
-- [ ] T038 [US3] Add IST timezone handling and date/time validation
-- [ ] T039 [US3] Create session validation rules (future date, same-day only) in lib/validations/session.ts
-- [ ] T040 [US3] Add location field requirement and validation
-- [ ] T041 [US3] Implement session creation success/error handling
+- [x] T038 [US3] Add IST timezone handling and date/time validation
+- [x] T039 [US3] Create session validation rules (future date, same-day only) in lib/validations/session.ts
+- [x] T040 [US3] Add location field requirement and validation
+- [x] T041 [US3] Implement session creation success/error handling
 
 **Checkpoint**: Users can create sessions that appear in the sessions list for all users
 

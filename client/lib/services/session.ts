@@ -112,26 +112,32 @@ export class SessionService {
     start_time: string;
     end_time: string;
   }): Promise<Session> {
-    const { data: { user }, error: userError } = await this.supabase.auth.getUser();
+    try {
+      // Use the API endpoint for consistency with error handling
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData),
+      });
 
-    if (userError || !user) {
-      throw new Error("You must be logged in to create a session");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = parseApiError({ 
+          status: response.status, 
+          message: errorData.error || 'Failed to create session' 
+        });
+        throw new Error(error.message);
+      }
+
+      const { session } = await response.json();
+      return session;
+    } catch (error: any) {
+      console.error('SessionService.createSession error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
     }
-
-    const { data, error } = await this.supabase
-      .from("sessions")
-      .insert({
-        ...sessionData,
-        created_by: user.id,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to create session: ${error.message}`);
-    }
-
-    return data;
   }
 
   async updateSessionResponse(
