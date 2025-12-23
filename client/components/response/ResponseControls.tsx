@@ -65,11 +65,11 @@ export function ResponseControls({
     isLoading && pendingResponse === status;
 
   return (
-    <div className="flex gap-2 w-full">
+    <div className="flex gap-1 sm:gap-2 w-full">
       <Button
         variant={getButtonVariant("COMING")}
         size="sm"
-        className="flex-1"
+        className="flex-1 min-h-[44px] touch-manipulation"
         onClick={() => handleResponseChange("COMING")}
         disabled={disabled || isLoading}
       >
@@ -78,13 +78,13 @@ export function ResponseControls({
         ) : (
           <Check className="h-4 w-4" />
         )}
-        <span className="ml-1">Coming</span>
+        <span className="ml-1 text-xs sm:text-sm">Coming</span>
       </Button>
 
       <Button
         variant={getButtonVariant("TENTATIVE")}
         size="sm"
-        className="flex-1"
+        className="flex-1 min-h-[44px] touch-manipulation"
         onClick={() => handleResponseChange("TENTATIVE")}
         disabled={disabled || isLoading}
       >
@@ -93,13 +93,13 @@ export function ResponseControls({
         ) : (
           <Clock className="h-4 w-4" />
         )}
-        <span className="ml-1">Maybe</span>
+        <span className="ml-1 text-xs sm:text-sm">Maybe</span>
       </Button>
 
       <Button
         variant={getButtonVariant("NOT_COMING")}
         size="sm"
-        className="flex-1"
+        className="flex-1 min-h-[44px] touch-manipulation"
         onClick={() => handleResponseChange("NOT_COMING")}
         disabled={disabled || isLoading}
       >
@@ -108,7 +108,8 @@ export function ResponseControls({
         ) : (
           <X className="h-4 w-4" />
         )}
-        <span className="ml-1">Can't make it</span>
+        <span className="ml-1 text-xs sm:text-sm hidden xs:inline">Can't make it</span>
+        <span className="ml-1 text-xs sm:text-sm inline xs:hidden">No</span>
       </Button>
     </div>
   );

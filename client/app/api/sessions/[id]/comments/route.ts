@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { commentSchema, commentUpdateSchema, buildCommentTree } from "@/lib/validations/comment";
-import { parseApiError } from "@/lib/utils/error-handling";
+import { parseApiError } from "@/lib/utils/errors";
 
 // GET - Fetch comments for a session
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -23,7 +24,7 @@ export async function GET(
     const { data: session, error: sessionError } = await supabase
       .from("sessions")
       .select("id")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (sessionError) {
@@ -49,7 +50,7 @@ export async function GET(
           name
         )
       `)
-      .eq("session_id", params.id)
+      .eq("session_id", id)
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -69,7 +70,7 @@ export async function GET(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }
@@ -77,9 +78,10 @@ export async function GET(
 // POST - Create new comment
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -108,7 +110,7 @@ export async function POST(
     const { data: session, error: sessionError } = await supabase
       .from("sessions")
       .select("id")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (sessionError) {
@@ -126,7 +128,7 @@ export async function POST(
         .eq("id", parent_comment_id)
         .single();
 
-      if (parentError || parentComment.session_id !== params.id) {
+      if (parentError || parentComment.session_id !== id) {
         return NextResponse.json(
           { error: "Parent comment not found or belongs to different session" },
           { status: 400 }
@@ -139,7 +141,7 @@ export async function POST(
       .from("comments")
       .insert({
         content,
-        session_id: params.id,
+        session_id: id,
         user_id: user.id,
         parent_comment_id: parent_comment_id || null,
       })
@@ -172,7 +174,7 @@ export async function POST(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }

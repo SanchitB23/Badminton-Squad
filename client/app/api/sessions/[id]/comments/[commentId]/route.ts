@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { commentUpdateSchema } from "@/lib/validations/comment";
-import { parseApiError } from "@/lib/utils/error-handling";
+import { parseApiError } from "@/lib/utils/errors";
 
 // PUT - Update comment
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } }
+  { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
+    const { id, commentId } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -37,8 +38,8 @@ export async function PUT(
     const { data: comment, error: fetchError } = await supabase
       .from("comments")
       .select("id, user_id, session_id, created_at")
-      .eq("id", params.commentId)
-      .eq("session_id", params.id)
+      .eq("id", commentId)
+      .eq("session_id", id)
       .single();
 
     if (fetchError) {
@@ -56,7 +57,7 @@ export async function PUT(
     }
 
     // Check if comment is not too old (e.g., 24 hours edit window)
-    const commentAge = Date.now() - new Date(comment.created_at).getTime();
+    const commentAge = Date.now() - new Date(comment.created_at || Date.now()).getTime();
     const maxEditAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
     if (commentAge > maxEditAge) {
@@ -73,7 +74,7 @@ export async function PUT(
         content,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.commentId)
+      .eq("id", commentId)
       .select(`
         id,
         content,
@@ -103,7 +104,7 @@ export async function PUT(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }
@@ -111,9 +112,10 @@ export async function PUT(
 // DELETE - Delete comment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } }
+  { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
+    const { id, commentId } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -136,8 +138,8 @@ export async function DELETE(
           created_by
         )
       `)
-      .eq("id", params.commentId)
-      .eq("session_id", params.id)
+      .eq("id", commentId)
+      .eq("session_id", id)
       .single();
 
     if (fetchError) {
@@ -161,7 +163,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from("comments")
       .delete()
-      .eq("id", params.commentId);
+      .eq("id", commentId);
 
     if (deleteError) {
       console.error("Database delete error:", deleteError);
@@ -177,7 +179,7 @@ export async function DELETE(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }

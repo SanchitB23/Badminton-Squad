@@ -64,16 +64,6 @@ export class SessionService {
     }
   }
 
-    if (error) {
-      throw new Error(`Failed to fetch sessions: ${error.message}`);
-    }
-
-    return data.map(session => ({
-      ...session,
-      comments_count: session.comments?.[0]?.count || 0,
-    }));
-  }
-
   async getSession(id: string): Promise<SessionWithDetails | null> {
     const { data, error } = await this.supabase
       .from("sessions")

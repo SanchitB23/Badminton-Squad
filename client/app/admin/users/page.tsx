@@ -14,9 +14,10 @@ interface User {
   name: string;
   email: string;
   phone: string | null;
-  role: string;
-  approved: boolean;
-  created_at: string;
+  role: "normal_user" | "super_admin" | "cred_manager" | null;
+  approved: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 async function approveUser(userId: string) {
@@ -130,7 +131,7 @@ export default async function AdminUsersPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Registered: {new Date(user.created_at).toLocaleDateString()}
+                    Registered: {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
                   </p>
                 </CardContent>
               </Card>
@@ -152,7 +153,7 @@ export default async function AdminUsersPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span>{user.name}</span>
                   <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
-                    {user.role.replace("_", " ").toUpperCase()}
+                    {user.role?.replace("_", " ").toUpperCase() || "USER"}
                   </span>
                 </CardTitle>
                 <CardDescription>
@@ -161,7 +162,7 @@ export default async function AdminUsersPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Approved: {new Date(user.created_at).toLocaleDateString()}
+                  Approved: {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
                 </p>
               </CardContent>
             </Card>

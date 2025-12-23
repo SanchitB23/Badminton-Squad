@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sessionSchema } from "@/lib/validations/session";
-import { parseApiError } from "@/lib/utils/error-handling";
+import { parseApiError } from "@/lib/utils/errors";
 
 // GET - Fetch single session
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -28,7 +29,7 @@ export async function GET(
           name
         )
       `)
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (error) {
@@ -53,9 +54,10 @@ export async function GET(
 // PUT - Update session
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -84,7 +86,7 @@ export async function PUT(
     const { data: existingSession, error: fetchError } = await supabase
       .from("sessions")
       .select("id, created_by, start_time")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (fetchError) {
@@ -125,7 +127,7 @@ export async function PUT(
         end_time,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.id)
+      .eq("id", id)
       .select(`
         *,
         created_by:profiles!sessions_created_by_fkey (
@@ -157,9 +159,10 @@ export async function PUT(
 // DELETE - Delete session
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -174,7 +177,7 @@ export async function DELETE(
     const { data: existingSession, error: fetchError } = await supabase
       .from("sessions")
       .select("id, created_by")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (fetchError) {
@@ -196,7 +199,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from("sessions")
       .delete()
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (deleteError) {
       console.error("Database delete error:", deleteError);

@@ -138,7 +138,88 @@ export function useUpdateSessionResponse() {
   return useMutation({
     mutationFn: ({ sessionId, status }: { sessionId: string; status: 'COMING' | 'NOT_COMING' | 'TENTATIVE' }) =>
       sessionService.updateSessionResponse(sessionId, status),
-    onSuccess: (_, variables) => {
+    
+    // Optimistic update - immediately update UI before server responds
+    onMutate: async ({ sessionId, status }) => {
+      // Cancel any outgoing refetches to avoid overwriting our optimistic update
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.sessions });
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.session(sessionId) });
+
+      // Snapshot the previous values
+      const previousSessions = queryClient.getQueryData(QUERY_KEYS.sessions);
+      const previousSession = queryClient.getQueryData(QUERY_KEYS.session(sessionId));
+
+      // Optimistically update the sessions list
+      queryClient.setQueryData(QUERY_KEYS.sessions, (old: any) => {
+        if (!old) return old;
+        
+        return old.map((session: any) => {
+          if (session.id !== sessionId) return session;
+          
+          // Update user_response and adjust counts
+          const oldResponse = session.user_response;
+          const newResponse = status;
+          
+          // Calculate new response counts
+          const newCounts = { ...session.response_counts };
+          
+          // Remove old response count
+          if (oldResponse) {
+            newCounts[oldResponse] = Math.max(0, newCounts[oldResponse] - 1);
+          }
+          
+          // Add new response count
+          newCounts[newResponse] = newCounts[newResponse] + 1;
+          
+          return {
+            ...session,
+            user_response: newResponse,
+            response_counts: newCounts,
+          };
+        });
+      });
+
+      // Optimistically update the individual session if cached
+      queryClient.setQueryData(QUERY_KEYS.session(sessionId), (old: any) => {
+        if (!old) return old;
+        
+        const oldResponse = old.user_response;
+        const newResponse = status;
+        
+        // Calculate new response counts
+        const newCounts = { ...old.response_counts };
+        
+        // Remove old response count
+        if (oldResponse) {
+          newCounts[oldResponse] = Math.max(0, newCounts[oldResponse] - 1);
+        }
+        
+        // Add new response count
+        newCounts[newResponse] = newCounts[newResponse] + 1;
+        
+        return {
+          ...old,
+          user_response: newResponse,
+          response_counts: newCounts,
+        };
+      });
+
+      // Return a context object with the snapshotted values
+      return { previousSessions, previousSession };
+    },
+
+    // On error, roll back to the previous values
+    onError: (err, variables, context) => {
+      if (context?.previousSessions) {
+        queryClient.setQueryData(QUERY_KEYS.sessions, context.previousSessions);
+      }
+      if (context?.previousSession) {
+        queryClient.setQueryData(QUERY_KEYS.session(variables.sessionId), context.previousSession);
+      }
+    },
+
+    // Always refetch after error or success to ensure consistency
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.sessions });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.session(variables.sessionId) });
     },

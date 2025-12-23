@@ -177,7 +177,7 @@ export async function GET(request: NextRequest) {
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }

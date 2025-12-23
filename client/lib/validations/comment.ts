@@ -31,8 +31,8 @@ export interface Comment {
   session_id: string;
   user_id: string;
   parent_comment_id?: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   user: {
     id: string;
     name: string;
