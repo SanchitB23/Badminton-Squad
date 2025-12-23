@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { parseApiError } from "@/lib/utils/error-handling";
+import { parseApiError } from "@/lib/utils/errors";
 
 // GET - Fetch user activity data
 export async function GET(request: NextRequest) {
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         status,
-        created_at as response_created_at,
+        created_at,
         session:sessions!responses_session_id_fkey (
           id,
           title,
@@ -72,8 +72,8 @@ export async function GET(request: NextRequest) {
       respondedSessionsQuery = respondedSessionsQuery.range(offset, offset + limit - 1);
     }
 
-    let createdSessions = [];
-    let respondedSessions = [];
+    let createdSessions: any[] = [];
+    let respondedSessions: any[] = [];
     
     // Fetch data based on filter
     if (filter === 'all' || filter === 'created') {
@@ -126,9 +126,9 @@ export async function GET(request: NextRequest) {
             created_by: response.session.created_by,
             user_response: response.status,
             activity_type: 'responded',
-            activity_date: response.response_created_at,
+            activity_date: response.created_at,
             response_id: response.id,
-          }));
+          }))
       }
     }
 

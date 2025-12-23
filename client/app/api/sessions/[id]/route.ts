@@ -46,7 +46,7 @@ export async function GET(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }
@@ -151,7 +151,7 @@ export async function PUT(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }
@@ -215,7 +215,7 @@ export async function DELETE(
     const apiError = parseApiError(error);
     return NextResponse.json(
       { error: apiError.message },
-      { status: apiError.status }
+      { status: 500 }
     );
   }
 }

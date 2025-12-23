@@ -62,8 +62,8 @@ interface User {
   profile: {
     name: string;
     email: string;
-    approved: boolean;
-    role: string;
+    approved: boolean | null;
+    role: string | null;
   } | null;
 }
 

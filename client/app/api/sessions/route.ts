@@ -33,11 +33,9 @@ export async function GET(request: NextRequest) {
       .select(`
         *,
         created_by_profile:profiles!sessions_created_by_fkey(name),
-        responses(status, user_id),
-        user_response:responses!responses_user_id_fkey(status)
+        responses(status, user_id)
       `)
       .gte('start_time', new Date().toISOString())
-      .eq('responses.user_id', user.id)
       .limit(limit)
 
     // Apply filtering
@@ -67,7 +65,7 @@ export async function GET(request: NextRequest) {
       }
 
       const recommendedCourts = Math.ceil(responseCounts.COMING / 4)
-      const userResponse = session.user_response?.[0]?.status || null
+      const userResponse = responses.find(r => r.user_id === user.id)?.status || null
 
       return {
         id: session.id,
