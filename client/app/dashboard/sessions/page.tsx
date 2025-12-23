@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CreateSessionDialog } from "@/components/CreateSessionDialog";
 import { SessionCard } from "@/components/session/SessionCard";
+import { SessionFilters, type SessionFilter } from "@/components/session/SessionFilters";
 import { useSessions } from "@/lib/hooks/useSessions";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Loader2, Plus, Users } from "lucide-react";
 
 type User = {
@@ -23,7 +24,67 @@ type User = {
 export default function SessionsPage() {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<SessionFilter>({
+    status: 'all',
+    sort: 'start_time',
+    sortOrder: 'asc',
+  });
+  
   const { data: sessions, isLoading, error } = useSessions();
+
+  // Filter and sort sessions
+  const filteredSessions = useMemo(() => {
+    if (!sessions || !user) return [];
+
+    let filtered = [...sessions];
+
+    // Apply status filter
+    switch (filters.status) {
+      case 'responded':
+        filtered = filtered.filter(session => 
+          session.user_response !== null && session.user_response !== undefined
+        );
+        break;
+      case 'not_responded':
+        filtered = filtered.filter(session => 
+          !session.user_response
+        );
+        break;
+      case 'created_by_me':
+        filtered = filtered.filter(session => 
+          session.created_by.id === user.id
+        );
+        break;
+      // 'all' case - no filtering needed
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let valueA: any, valueB: any;
+      
+      switch (filters.sort) {
+        case 'start_time':
+          valueA = new Date(a.start_time);
+          valueB = new Date(b.start_time);
+          break;
+        case 'created_at':
+          valueA = new Date(a.created_at);
+          valueB = new Date(b.created_at);
+          break;
+        case 'response_count':
+          valueA = a.response_counts.COMING + a.response_counts.TENTATIVE + a.response_counts.NOT_COMING;
+          valueB = b.response_counts.COMING + b.response_counts.TENTATIVE + b.response_counts.NOT_COMING;
+          break;
+        default:
+          return 0;
+      }
+
+      const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+      return filters.sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [sessions, filters, user]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -74,6 +135,13 @@ export default function SessionsPage() {
           </CreateSessionDialog>
         </div>
 
+        <SessionFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          totalSessions={sessions?.length || 0}
+          filteredCount={filteredSessions.length}
+        />
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -114,9 +182,31 @@ export default function SessionsPage() {
               </div>
             </CardContent>
           </Card>
+        ) : filteredSessions.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No sessions match your filters
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Try adjusting your filters to see more sessions.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setFilters({ status: 'all', sort: 'start_time', sortOrder: 'asc' })}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-6">
-            {sessions.map((session) => (
+            {filteredSessions.map((session) => (
               <SessionCard
                 key={session.id}
                 session={session}

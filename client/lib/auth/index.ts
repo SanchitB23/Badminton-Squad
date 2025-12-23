@@ -1,40 +1,55 @@
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
 import type { SignUpFormData, LoginFormData } from '@/lib/validations/auth'
+import { parseAuthError } from '@/lib/utils/errors'
 
 export async function signUp(data: SignUpFormData) {
   const supabase = createBrowserClient()
   
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
-    options: {
-      data: {
-        name: data.name,
-        phone: data.phone,
+  try {
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          name: data.name,
+          phone: data.phone,
+        },
       },
-    },
-  })
+    })
 
-  if (authError) {
-    throw new Error(authError.message)
+    if (authError) {
+      const parsedError = parseAuthError(authError)
+      throw new Error(parsedError.message)
+    }
+
+    return authData
+  } catch (error: any) {
+    // Re-parse the error in case it's not from Supabase
+    const parsedError = parseAuthError(error)
+    throw new Error(parsedError.message)
   }
-
-  return authData
 }
 
 export async function signIn(data: LoginFormData) {
   const supabase = createBrowserClient()
   
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: data.email,
-    password: data.password,
-  })
+  try {
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    })
 
-  if (authError) {
-    throw new Error(authError.message)
+    if (authError) {
+      const parsedError = parseAuthError(authError)
+      throw new Error(parsedError.message)
+    }
+
+    return authData
+  } catch (error: any) {
+    // Re-parse the error in case it's not from Supabase
+    const parsedError = parseAuthError(error)
+    throw new Error(parsedError.message)
   }
-
-  return authData
 }
 
 export async function signOut() {

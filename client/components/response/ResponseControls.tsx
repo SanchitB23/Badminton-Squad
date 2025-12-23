@@ -31,9 +31,19 @@ export function ResponseControls({
         sessionId,
         status,
       });
-    } catch (error) {
-      console.error("Failed to update response:", error);
-      // You might want to show a toast notification here
+    } catch (error: any) {
+      console.error('Failed to update response:', error);
+      
+      // Show user-friendly error message
+      const errorMessage = error?.message || 'Failed to update response. Please try again.';
+      
+      // You can replace this with a proper toast notification system
+      alert(`Error: ${errorMessage}`);
+      
+      // If it's an auth error, the user might need to refresh/login
+      if (error?.message?.includes('Unauthorized') || error?.message?.includes('sign in')) {
+        window.location.reload();
+      }
     } finally {
       setPendingResponse(null);
     }

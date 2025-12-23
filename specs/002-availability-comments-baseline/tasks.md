@@ -54,7 +54,7 @@
 - [x] T022 [US1] Create profile creation trigger function in supabase/migrations/
 - [x] T023 [US1] Build admin approval interface for super admin in app/admin/users/page.tsx
 - [x] T024 [US1] Create middleware to redirect unapproved users in middleware.ts
-- [ ] T025 [US1] Add error handling for auth failures in auth components
+- [X] T025 [US1] Add error handling for auth failures in auth components
 
 **Checkpoint**: Users can register, await approval, and access protected routes after login
 
@@ -72,8 +72,8 @@
 - [x] T029 [US2] Create API endpoint for fetching sessions with counts in app/api/sessions/route.ts
 - [x] T030 [US2] Create API endpoint for setting/updating responses in app/api/responses/route.ts
 - [x] T031 [US2] Implement courts calculation logic (ceil(COMING/4)) in lib/utils/courts.ts
-- [ ] T032 [US2] Add real-time response updates using Supabase Realtime
-- [ ] T033 [US2] Create session filtering and sorting functionality in sessions list
+- [X] T032 [US2] Add real-time response updates using Supabase Realtime
+- [X] T033 [US2] Create session filtering and sorting functionality in sessions list
 - [x] T034 [US2] Add response cutoff logic (T-1 day midnight IST) in response validation
 
 **Checkpoint**: Users can view sessions, respond with COMING/TENTATIVE/NOT_COMING, see live updates

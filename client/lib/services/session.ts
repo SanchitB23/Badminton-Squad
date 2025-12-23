@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { parseApiError } from "@/lib/utils/errors";
 import type { Database } from "@/types/database.types";
 
 type Session = Database["public"]["Tables"]["sessions"]["Row"];
@@ -28,25 +29,40 @@ export class SessionService {
   private supabase = createClient();
 
   async getSessions(): Promise<SessionWithDetails[]> {
-    const { data, error } = await this.supabase
-      .from("sessions")
-      .select(`
-        *,
-        creator:profiles!sessions_created_by_fkey (
-          name,
-          email
-        ),
-        responses:responses (
-          user_id,
-          status,
-          user:profiles!session_responses_user_id_fkey (
-            name
-          )
-        ),
-        comments (count)
-      `)
-      .gte("start_time", new Date().toISOString())
-      .order("start_time", { ascending: true });
+    try {
+      const { data, error } = await this.supabase
+        .from("sessions")
+        .select(`
+          *,
+          creator:profiles!sessions_created_by_fkey (
+            name,
+            email
+          ),
+          responses:responses (
+            user_id,
+            status,
+            user:profiles!session_responses_user_id_fkey (
+              name
+            )
+          ),
+          comments (count)
+        `)
+        .gte("start_time", new Date().toISOString())
+        .order("start_time", { ascending: true });
+
+      if (error) {
+        console.error('Error fetching sessions:', error);
+        const parsedError = parseApiError(error);
+        throw new Error(parsedError.message);
+      }
+
+      return data as SessionWithDetails[];
+    } catch (error: any) {
+      console.error('SessionService.getSessions error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
+    }
+  }
 
     if (error) {
       throw new Error(`Failed to fetch sessions: ${error.message}`);
@@ -122,27 +138,42 @@ export class SessionService {
     sessionId: string,
     status: "COMING" | "NOT_COMING" | "TENTATIVE"
   ): Promise<SessionResponse> {
-    const { data: { user }, error: userError } = await this.supabase.auth.getUser();
+    try {
+      const { data: { user }, error: userError } = await this.supabase.auth.getUser();
 
-    if (userError || !user) {
-      throw new Error("You must be logged in to respond to a session");
+      if (userError || !user) {
+        const error = parseApiError({ status: 401, message: "Authentication required" });
+        throw new Error(error.message);
+      }
+
+      // Use the API endpoint instead of direct Supabase call for consistency
+      const response = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          status,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = parseApiError({ 
+          status: response.status, 
+          message: errorData.error || 'Failed to update response' 
+        });
+        throw new Error(error.message);
+      }
+
+      const { response: data } = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error('SessionService.updateSessionResponse error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
     }
-
-    const { data, error } = await this.supabase
-      .from("responses")
-      .upsert({
-        session_id: sessionId,
-        user_id: user.id,
-        status,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to update response: ${error.message}`);
-    }
-
-    return data;
   }
 
   async getSessionComments(sessionId: string): Promise<Comment[]> {
