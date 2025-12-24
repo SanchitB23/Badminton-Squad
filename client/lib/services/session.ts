@@ -1,0 +1,274 @@
+import { createClient } from "@/lib/supabase/client";
+import { parseApiError } from "@/lib/utils/errors";
+import type { Database } from "@/types/database.types";
+
+type Session = Database["public"]["Tables"]["sessions"]["Row"];
+type SessionWithDetails = Omit<Session, 'created_by'> & {
+  creator: {
+    name: string;
+    email: string;
+  };
+  created_by: { id: string; name?: string };
+  responses: Array<{
+    user_id: string;
+    status: "COMING" | "NOT_COMING" | "TENTATIVE";
+    user: {
+      name: string;
+    };
+  }>;
+  comments_count: number;
+  response_counts?: {
+    COMING: number;
+    TENTATIVE: number;
+    NOT_COMING: number;
+  };
+  user_response?: "COMING" | "NOT_COMING" | "TENTATIVE" | null;
+  recommended_courts?: number;
+};
+
+type SessionResponse = Database["public"]["Tables"]["responses"]["Row"];
+type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
+  user: {
+    name: string;
+  };
+};
+
+export class SessionService {
+  private supabase = createClient();
+
+  async getSessions(): Promise<SessionWithDetails[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from("sessions")
+        .select(`
+          *,
+          creator:profiles!sessions_created_by_fkey (
+            name,
+            email
+          ),
+          responses:responses (
+            user_id,
+            status,
+            user:profiles!responses_user_id_fkey (
+              name
+            )
+          ),
+          comments (count)
+        `)
+        .gte("start_time", new Date().toISOString())
+        .order("start_time", { ascending: true });
+
+      if (error) {
+        console.error('Error fetching sessions:', error);
+        const parsedError = parseApiError(error);
+        throw new Error(parsedError.message);
+      }
+
+      // Compute derived fields: response_counts, user_response, recommended_courts
+      const { data: auth } = await this.supabase.auth.getUser();
+      const currentUserId = auth?.user?.id || null;
+
+      const enriched = (data || []).map((session: any) => {
+        const counts = {
+          COMING: session.responses.filter((r: any) => r.status === 'COMING').length,
+          TENTATIVE: session.responses.filter((r: any) => r.status === 'TENTATIVE').length,
+          NOT_COMING: session.responses.filter((r: any) => r.status === 'NOT_COMING').length,
+        };
+        const userResp = currentUserId
+          ? (session.responses.find((r: any) => r.user_id === currentUserId)?.status || null)
+          : null;
+        const recommended = Math.ceil(counts.COMING / 4);
+        return {
+          ...session,
+          comments_count: session.comments?.[0]?.count || 0,
+          created_by: { id: session.created_by, name: session.creator?.name },
+          response_counts: counts,
+          user_response: userResp,
+          recommended_courts: recommended,
+        } as SessionWithDetails;
+      });
+
+      return enriched;
+    } catch (error: any) {
+      console.error('SessionService.getSessions error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
+    }
+  }
+
+  async getSession(id: string): Promise<SessionWithDetails | null> {
+    const { data, error } = await this.supabase
+      .from("sessions")
+      .select(`
+        *,
+        creator:profiles!sessions_created_by_fkey (
+          name,
+          email
+        ),
+        responses:responses (
+          user_id,
+          status,
+          user:profiles!responses_user_id_fkey (
+            name
+          )
+        ),
+        comments (count)
+      `)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to fetch session: ${error.message}`);
+    }
+
+    const { data: auth } = await this.supabase.auth.getUser();
+    const currentUserId = auth?.user?.id || null;
+    const counts = {
+      COMING: data.responses.filter((r: any) => r.status === 'COMING').length,
+      TENTATIVE: data.responses.filter((r: any) => r.status === 'TENTATIVE').length,
+      NOT_COMING: data.responses.filter((r: any) => r.status === 'NOT_COMING').length,
+    };
+    const userResp = currentUserId
+      ? (data.responses.find((r: any) => r.user_id === currentUserId)?.status || null)
+      : null;
+    const recommended = Math.ceil(counts.COMING / 4);
+    return {
+      ...data,
+      comments_count: data.comments?.[0]?.count || 0,
+      created_by: { id: data.created_by, name: data.creator?.name },
+      response_counts: counts,
+      user_response: userResp,
+      recommended_courts: recommended,
+    };
+  }
+
+  async createSession(sessionData: {
+    title?: string;
+    description?: string;
+    location: string;
+    start_time: string;
+    end_time: string;
+  }): Promise<Session> {
+    try {
+      // Use the API endpoint for consistency with error handling
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = parseApiError({ 
+          status: response.status, 
+          message: errorData.error || 'Failed to create session' 
+        });
+        throw new Error(error.message);
+      }
+
+      const { session } = await response.json();
+      return session;
+    } catch (error: any) {
+      console.error('SessionService.createSession error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
+    }
+  }
+
+  async updateSessionResponse(
+    sessionId: string,
+    status: "COMING" | "NOT_COMING" | "TENTATIVE"
+  ): Promise<SessionResponse> {
+    try {
+      const { data: { user }, error: userError } = await this.supabase.auth.getUser();
+
+      if (userError || !user) {
+        const error = parseApiError({ status: 401, message: "Authentication required" });
+        throw new Error(error.message);
+      }
+
+      // Use the API endpoint instead of direct Supabase call for consistency
+      const response = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          status,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = parseApiError({ 
+          status: response.status, 
+          message: errorData.error || 'Failed to update response' 
+        });
+        throw new Error(error.message);
+      }
+
+      const { response: data } = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error('SessionService.updateSessionResponse error:', error);
+      const parsedError = parseApiError(error);
+      throw new Error(parsedError.message);
+    }
+  }
+
+  async getSessionComments(sessionId: string): Promise<Comment[]> {
+    const { data, error } = await this.supabase
+      .from("comments")
+      .select(`
+        *,
+        user:profiles!comments_user_id_fkey (
+          name
+        )
+      `)
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(`Failed to fetch comments: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  async addComment(
+    sessionId: string,
+    content: string,
+    parentCommentId?: string
+  ): Promise<Comment> {
+    const { data: { user }, error: userError } = await this.supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("You must be logged in to add a comment");
+    }
+
+    const { data, error } = await this.supabase
+      .from("comments")
+      .insert({
+        session_id: sessionId,
+        user_id: user.id,
+        content,
+        parent_comment_id: parentCommentId,
+      })
+      .select(`
+        *,
+        user:profiles!comments_user_id_fkey (
+          name
+        )
+      `)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to add comment: ${error.message}`);
+    }
+
+    return data;
+  }
+}

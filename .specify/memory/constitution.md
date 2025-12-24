@@ -1,50 +1,67 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: [initial template] → 1.0.0
+- Modified principles: Complete initial setup
+- Added sections: All core principles, Architecture Constraints, Development Standards
+- Removed sections: None
+- Templates requiring updates: ✅ Updated plan-template.md references to align with new principles
+- Follow-up TODOs: None
+-->
+
+# Badminton Schedule Tracker Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Simplicity & Maintainability (NON-NEGOTIABLE)
+Keep the architecture boring and predictable. Use a TypeScript/React (Next.js) monolith with a relational database. Avoid microservices, message queues, and complex infrastructure patterns. Every technical decision must be justified by actual business need, not theoretical scalability.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+**Rationale**: Small team, simple domain. Premature optimization and over-engineering create maintenance burden without delivering user value.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Mobile-First Design
+All user interfaces MUST be designed for mobile devices first, then progressively enhanced for larger screens. Touch targets, responsive layouts, and accessible navigation are mandatory.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: Badminton sessions are coordinated on-the-go. The primary user experience happens on mobile devices.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Data Integrity & Business Rules
+Core business logic (session capacity, waitlists, attendance tracking) MUST be enforced at the database and application layer with comprehensive test coverage. User actions that violate business rules must fail gracefully with clear messaging.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Session coordination requires reliable data. Overbooking or lost registrations break trust and utility.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Security by Default
+- Passwords MUST be properly hashed (bcrypt/scrypt/argon2)
+- Authentication tokens/OTP systems MUST be implemented securely
+- Sensitive data MUST NOT appear in logs or error messages
+- API endpoints MUST validate and sanitize all inputs
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Rationale**: User trust is paramount. Security breaches in social coordination apps have outsized impact on adoption.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Testing Business Logic
+All session management logic (joining, leaving, waitlists, capacity enforcement) MUST be covered by automated tests. UI components handling these workflows MUST have interaction tests.
+
+**Rationale**: Business rule violations cause real-world coordination failures. Tests prevent regression in core functionality.
+
+## Architecture Constraints
+
+**Technology Stack**: TypeScript, React, Next.js, relational database (PostgreSQL/SQLite), minimal external dependencies
+**Data Models**: Clear separation between Users, Sessions, and Attendance with well-defined relationships
+**API Design**: REST-style endpoints with predictable URLs, standard HTTP methods, and consistent error responses
+**Database**: Relational design with proper constraints, foreign keys, and indexes for query patterns
+**Dependencies**: Prefer standard library and well-established packages; justify any new dependency additions
+
+## Development Standards
+
+**Code Style**: TypeScript strict mode, ESLint/Prettier for consistency, meaningful variable names
+**Component Design**: Reusable UI components, proper prop typing, accessibility attributes (ARIA labels, semantic HTML)
+**Error Handling**: User-friendly error messages, proper HTTP status codes, graceful degradation
+**Performance**: Optimize for mobile networks, implement loading states, avoid unnecessary re-renders
+**Documentation**: README setup instructions, API endpoint documentation, component prop documentation
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. All feature specifications and implementation plans must verify compliance with these principles. Technical complexity must be explicitly justified against business value.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Amendment process: Proposed changes require documentation of rationale, impact assessment, and migration plan if existing code is affected. Breaking changes to core principles require full team consensus.
+
+For day-to-day development guidance beyond these constitutional requirements, refer to project documentation and existing code patterns.
+
+**Version**: 1.0.0 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-12
