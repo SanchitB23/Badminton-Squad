@@ -17,9 +17,9 @@ interface ProfileInfoProps {
     };
   } | null;
   profile: {
-    name?: string;
-    role?: string;
-    approved?: boolean;
+    name: string;
+    role: "normal_user" | "super_admin" | "cred_manager" | null;
+    approved: boolean | null;
   } | null;
 }
 
@@ -52,7 +52,7 @@ export function ProfileInfo({ user, profile }: ProfileInfoProps) {
   
   const approvalStatus = profile?.approved ? 'Approved' : 'Pending';
 
-  const getRoleDisplay = (role: string) => {
+  const getRoleDisplay = (role: "normal_user" | "super_admin" | "cred_manager" | null) => {
     switch (role) {
       case 'super_admin':
         return 'Super Admin';
