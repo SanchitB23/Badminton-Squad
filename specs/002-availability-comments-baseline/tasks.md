@@ -18,8 +18,8 @@
 - [x] T001 Initialize Next.js 14+ project with TypeScript and App Router in repository root
 - [x] T002 [P] Configure Tailwind CSS with mobile-first breakpoints in tailwind.config.js
 - [x] T003 [P] Set up ESLint, Prettier, and TypeScript strict mode in project configs
-- [X] T004 [P] Create Supabase project and configure environment variables in .env.local
-- [X] T005 [P] Set up Husky pre-commit hooks for linting and type checking
+- [x] T004 [P] Create Supabase project and configure environment variables in .env.local
+- [x] T005 [P] Set up Husky pre-commit hooks for linting and type checking
 
 ### Database & Supabase Setup
 
@@ -54,7 +54,7 @@
 - [x] T022 [US1] Create profile creation trigger function in supabase/migrations/
 - [x] T023 [US1] Build admin approval interface for super admin in app/admin/users/page.tsx
 - [x] T024 [US1] Configure proxy-based route protection in client/proxy.ts
-- [X] T025 [US1] Add error handling for auth failures in auth components
+- [x] T025 [US1] Add error handling for auth failures in auth components
 
 **Checkpoint**: Users can register, await approval, and access protected routes after login
 
@@ -72,8 +72,8 @@
 - [x] T029 [US2] Create API endpoint for fetching sessions with counts in app/api/sessions/route.ts
 - [x] T030 [US2] Create API endpoint for setting/updating responses in app/api/responses/route.ts
 - [x] T031 [US2] Implement courts calculation logic (ceil(COMING/4)) in lib/utils/courts.ts
-- [X] T032 [US2] Add real-time response updates using Supabase Realtime
-- [X] T033 [US2] Create session filtering and sorting functionality in sessions list
+- [x] T032 [US2] Add real-time response updates using Supabase Realtime
+- [x] T033 [US2] Create session filtering and sorting functionality in sessions list
 - [x] T034 [US2] Add response cutoff logic (T-1 day midnight IST) in response validation
 
 **Checkpoint**: Users can view sessions, respond with COMING/TENTATIVE/NOT_COMING, see live updates
