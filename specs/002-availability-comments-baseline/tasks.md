@@ -176,14 +176,14 @@
 
 ### Integration Testing
 
-- [ ] T071 Write integration test for complete signup → approval → login flow in tests/integration/auth.test.ts
-- [ ] T072 Write integration test for create session → respond → view counts flow in tests/integration/sessions.test.ts
-- [ ] T073 Write integration test for comment posting → threading → moderation flow in tests/integration/comments.test.ts
+- [x] T071 Write integration test for complete signup → approval → login flow in tests/integration/auth.test.ts
+- [x] T072 Write integration test for create session → respond → view counts flow in tests/integration/sessions.test.ts
+- [x] T073 Write integration test for comment posting → threading → moderation flow in tests/integration/comments.test.ts
 
 ### End-to-End Testing
 
-- [ ] T074 Write E2E test for full user journey: signup → create session → respond → comment in tests/e2e/user-journey.spec.ts
-- [ ] T075 Write E2E test for admin approval workflow in tests/e2e/admin-approval.spec.ts
+- [x] T074 Write E2E test for full user journey: signup → create session → respond → comment in tests/e2e/user-journey.spec.ts
+- [x] T075 Write E2E test for admin approval workflow in tests/e2e/admin-approval.spec.ts
 
 ## Phase 10: Critical Bug Fixes
 
@@ -195,12 +195,12 @@
 
 **Solution**: Create a basic Profile page with safe data handling for user information.
 
-- [ ] T076 Create Profile page directory structure at `client/app/dashboard/profile/`
-- [ ] T077 [P] Implement basic Profile page component in `client/app/dashboard/profile/page.tsx`
-- [ ] T078 [P] Add safe user data fetching with null/undefined guards in Profile page
-- [ ] T079 [P] Create ProfileInfo component in `client/components/profile/ProfileInfo.tsx`
-- [ ] T080 [P] Add user profile display (name, email, role) with fallbacks for missing data
-- [ ] T081 [P] Add logout functionality to Profile page
+- [x] T076 Create Profile page directory structure at `client/app/dashboard/profile/`
+- [x] T077 [P] Implement basic Profile page component in `client/app/dashboard/profile/page.tsx`
+- [x] T078 [P] Add safe user data fetching with null/undefined guards in Profile page
+- [x] T079 [P] Create ProfileInfo component in `client/components/profile/ProfileInfo.tsx`
+- [x] T080 [P] Add user profile display (name, email, role) with fallbacks for missing data
+- [x] T081 [P] Add logout functionality to Profile page
 - [ ] T082 Test Profile tab navigation from mobile navigation without crashes
 - [ ] T083 Test Profile page displays user information safely when data is missing
 
@@ -212,12 +212,12 @@
 
 **Solution**: Add defensive programming to session detail page and improve error handling.
 
-- [ ] T084 Audit session detail page in `client/app/dashboard/session/[id]/page.tsx` for unsafe data access
-- [ ] T085 [P] Add null/undefined guards for session data fetching in session detail page
-- [ ] T086 [P] Add safe handling for missing response counts, comments, and user data
-- [ ] T087 [P] Implement loading states and error boundaries for session detail page
-- [ ] T088 [P] Add fallback UI components for missing session data in `client/components/session/`
-- [ ] T089 [P] Ensure proper error handling in session data fetching service methods
+- [x] T084 Audit session detail page in `client/app/dashboard/session/[id]/page.tsx` for unsafe data access
+- [x] T085 [P] Add null/undefined guards for session data fetching in session detail page
+- [x] T086 [P] Add safe handling for missing response counts, comments, and user data
+- [x] T087 [P] Implement loading states and error boundaries for session detail page
+- [x] T088 [P] Add fallback UI components for missing session data in `client/components/session/`
+- [x] T089 [P] Ensure proper error handling in session data fetching service methods
 - [ ] T090 Test "View details" navigation from My Activity page without crashes
 - [ ] T091 Test session detail page handles missing/partial data gracefully
 - [ ] T092 Test session detail page shows appropriate error messages for invalid session IDs

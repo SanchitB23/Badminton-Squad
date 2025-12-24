@@ -174,10 +174,11 @@ export default function SessionDetailPage() {
     );
   }
 
-  const startTime = new Date(session.start_time);
-  const endTime = new Date(session.end_time);
-  const courts = calculateCourts(session.response_counts.COMING);
-  const playability = getPlayabilityStatus(session.response_counts.COMING);
+  const startTime = session?.start_time ? new Date(session.start_time) : new Date();
+  const endTime = session?.end_time ? new Date(session.end_time) : new Date();
+  const comingCount = session?.response_counts?.COMING ?? 0;
+  const courts = calculateCourts(comingCount);
+  const playability = getPlayabilityStatus(comingCount);
 
   // Check if response cutoff has passed
   const cutoffTime = new Date(startTime);
@@ -185,9 +186,9 @@ export default function SessionDetailPage() {
   cutoffTime.setHours(0, 0, 0, 0);
   const isResponseDisabled = new Date() >= cutoffTime;
 
-  // Check permissions
-  const isCreator = user.id === session.created_by.id;
-  const sessionDate = new Date(session.start_time);
+  // Check permissions with safe data access
+  const isCreator = user?.id && session?.created_by?.id && user.id === session.created_by.id;
+  const sessionDate = new Date(session?.start_time || new Date());
   const today = new Date();
   const isSameDay = sessionDate.toDateString() === today.toDateString();
   const canEdit = isCreator && !isSameDay;
@@ -230,7 +231,7 @@ export default function SessionDetailPage() {
                 </CardTitle>
                 <CardDescription className="flex items-center gap-1 mt-2">
                   <Users className="h-4 w-4" />
-                  Created by {session.created_by.name || "Unknown"}
+                  Created by {session?.created_by?.name || "Unknown"}
                 </CardDescription>
               </div>
               
@@ -259,7 +260,7 @@ export default function SessionDetailPage() {
                         asChild={canEdit}
                       >
                         {canEdit ? (
-                          <Link href={`/dashboard/session/${session.id}/edit`}>
+                          <Link href={`/dashboard/session/${session?.id || 'unknown'}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit session
                           </Link>
@@ -292,10 +293,10 @@ export default function SessionDetailPage() {
 
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{session.location}</span>
+                <span>{session?.location || "Location not specified"}</span>
               </div>
 
-              {session.description && (
+              {session?.description && (
                 <div className="flex items-start gap-2 text-sm">
                   <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <p className="text-gray-700">{session.description}</p>
@@ -308,15 +309,15 @@ export default function SessionDetailPage() {
               <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="font-medium">{session.response_counts.COMING} Coming</span>
+                  <span className="font-medium">{session?.response_counts?.COMING || 0} Coming</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="font-medium">{session.response_counts.TENTATIVE} Maybe</span>
+                  <span className="font-medium">{session?.response_counts?.TENTATIVE || 0} Maybe</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="font-medium">{session.response_counts.NOT_COMING} Not coming</span>
+                  <span className="font-medium">{session?.response_counts?.NOT_COMING || 0} Not coming</span>
                 </div>
               </div>
 
@@ -338,14 +339,14 @@ export default function SessionDetailPage() {
                 </p>
               )}
               <ResponseControls
-                sessionId={session.id}
-                currentResponse={session.user_response}
+                sessionId={session?.id || ''}
+                currentResponse={session?.user_response}
                 disabled={isResponseDisabled}
               />
             </div>
 
             {/* Current Response Indicator */}
-            {session.user_response && (
+            {session?.user_response && (
               <div className="text-center text-sm">
                 <span className="text-muted-foreground">Your response: </span>
                 <span
@@ -414,8 +415,8 @@ export default function SessionDetailPage() {
                   <CommentThread
                     comments={comments}
                     sessionId={sessionId}
-                    currentUserId={user.id}
-                    sessionCreatorId={session.created_by.id}
+                    currentUserId={user?.id || ''}
+                    sessionCreatorId={session?.created_by?.id || ''}
                     onCommentUpdate={fetchComments}
                   />
                 </div>
