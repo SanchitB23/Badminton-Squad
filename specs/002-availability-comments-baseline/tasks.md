@@ -185,7 +185,50 @@
 - [ ] T074 Write E2E test for full user journey: signup → create session → respond → comment in tests/e2e/user-journey.spec.ts
 - [ ] T075 Write E2E test for admin approval workflow in tests/e2e/admin-approval.spec.ts
 
+## Phase 10: Critical Bug Fixes
+
+### Bugfix: Profile tab crash
+
+**Problem**: Mobile navigation includes a Profile tab at `/dashboard/profile` but this route doesn't exist, causing crashes when users tap it.
+
+**Root Cause**: MobileNavigation component references `/dashboard/profile` route, but no corresponding page exists at `app/dashboard/profile/page.tsx`.
+
+**Solution**: Create a basic Profile page with safe data handling for user information.
+
+- [ ] T076 Create Profile page directory structure at `client/app/dashboard/profile/`
+- [ ] T077 [P] Implement basic Profile page component in `client/app/dashboard/profile/page.tsx`
+- [ ] T078 [P] Add safe user data fetching with null/undefined guards in Profile page
+- [ ] T079 [P] Create ProfileInfo component in `client/components/profile/ProfileInfo.tsx`
+- [ ] T080 [P] Add user profile display (name, email, role) with fallbacks for missing data
+- [ ] T081 [P] Add logout functionality to Profile page
+- [ ] T082 Test Profile tab navigation from mobile navigation without crashes
+- [ ] T083 Test Profile page displays user information safely when data is missing
+
+### Bugfix: My Activity "View details" crash
+
+**Problem**: "View details" buttons in My Activity page link to session detail pages that may crash due to data handling issues.
+
+**Root Cause**: The session detail route at `/dashboard/session/[id]` may not handle missing or malformed session data safely, causing crashes when navigating from My Activity.
+
+**Solution**: Add defensive programming to session detail page and improve error handling.
+
+- [ ] T084 Audit session detail page in `client/app/dashboard/session/[id]/page.tsx` for unsafe data access
+- [ ] T085 [P] Add null/undefined guards for session data fetching in session detail page
+- [ ] T086 [P] Add safe handling for missing response counts, comments, and user data
+- [ ] T087 [P] Implement loading states and error boundaries for session detail page
+- [ ] T088 [P] Add fallback UI components for missing session data in `client/components/session/`
+- [ ] T089 [P] Ensure proper error handling in session data fetching service methods
+- [ ] T090 Test "View details" navigation from My Activity page without crashes
+- [ ] T091 Test session detail page handles missing/partial data gracefully
+- [ ] T092 Test session detail page shows appropriate error messages for invalid session IDs
+
 ## Dependencies & Execution
+
+### Critical Bug Fix Dependencies
+
+**Phase 10 - Bugfix Dependencies**:
+- **Profile tab crash** (T076-T083): Can be implemented independently, no dependencies on existing tasks
+- **My Activity crash** (T084-T092): Depends on existing session detail functionality (already completed in T042)
 
 ### Parallel Execution Opportunities
 
@@ -194,6 +237,7 @@
 **Core Features (T026-T041)**: Sessions and responses can be developed in parallel
 **Enhancement (T042-T065)**: Comments, management, and mobile optimization can be parallel
 **Testing (T066-T075)**: All test tasks can run in parallel after implementation
+**Bug Fixes (T076-T092)**: Profile and session detail bug fixes can run in parallel
 
 ### Critical Path Dependencies
 
@@ -202,6 +246,7 @@
 3. **T018-T025**: Auth must work before protected features
 4. **T026-T034**: Sessions list needed before creation and comments
 5. **T035-T041**: Session creation enables management features
+6. **T076-T092**: Bug fixes can be implemented independently after base features exist
 
 ### MVP Delivery Strategy
 
@@ -223,4 +268,17 @@
 - Mobile optimization
 - Comprehensive testing
 
-**Estimated Total**: 75 tasks, ~4 weeks for full implementation
+**Critical Bug Fixes (Priority)**: Complete Phase 10 (T076-T092)
+
+- Profile tab navigation fix
+- Session detail crash prevention
+- Safe data handling improvements
+
+**Updated Total**: 92 tasks, ~4 weeks for full implementation + bug fixes
+
+**Acceptance Criteria for Bug Fixes**:
+- Profile tab opens successfully from mobile navigation
+- Profile page displays user information or appropriate placeholders
+- "View details" from My Activity navigates without crashing
+- Session detail page handles missing data gracefully
+- All pages show appropriate loading and error states
