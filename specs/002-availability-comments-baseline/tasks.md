@@ -176,14 +176,14 @@
 
 ### Integration Testing
 
-- [ ] T071 Write integration test for complete signup → approval → login flow in tests/integration/auth.test.ts
-- [ ] T072 Write integration test for create session → respond → view counts flow in tests/integration/sessions.test.ts
-- [ ] T073 Write integration test for comment posting → threading → moderation flow in tests/integration/comments.test.ts
+- [x] T071 Write integration test for complete signup → approval → login flow in tests/integration/auth.test.ts
+- [x] T072 Write integration test for create session → respond → view counts flow in tests/integration/sessions.test.ts
+- [x] T073 Write integration test for comment posting → threading → moderation flow in tests/integration/comments.test.ts
 
 ### End-to-End Testing
 
-- [ ] T074 Write E2E test for full user journey: signup → create session → respond → comment in tests/e2e/user-journey.spec.ts
-- [ ] T075 Write E2E test for admin approval workflow in tests/e2e/admin-approval.spec.ts
+- [x] T074 Write E2E test for full user journey: signup → create session → respond → comment in tests/e2e/user-journey.spec.ts
+- [x] T075 Write E2E test for admin approval workflow in tests/e2e/admin-approval.spec.ts
 
 ## Phase 10: Critical Bug Fixes
 
