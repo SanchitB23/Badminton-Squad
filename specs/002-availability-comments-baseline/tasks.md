@@ -37,7 +37,7 @@
 - [x] T014 [P] Create auth utilities and middleware for protected routes in lib/auth/
 - [x] T015 [P] Set up form validation schemas using Zod in lib/validations/
 - [x] T016 [P] Create base UI components (Button, Input, Card) in components/ui/
-- [ ] T017 [P] Set up testing infrastructure with Jest and React Testing Library
+- [x] T017 [P] Set up testing infrastructure with Jest and React Testing Library
 
 ## Phase 2: User Story 1 - Authentication & Access (P1)
 
@@ -168,11 +168,11 @@
 
 ### Unit Testing
 
-- [ ] T066 [P] Write unit tests for courts calculation logic in tests/utils/courts.test.ts
-- [ ] T067 [P] Write unit tests for response validation logic in tests/validations/response.test.ts
-- [ ] T068 [P] Write unit tests for session validation logic in tests/validations/session.test.ts
-- [ ] T069 [P] Write component tests for SessionCard in tests/components/session/SessionCard.test.tsx
-- [ ] T070 [P] Write component tests for ResponseControls in tests/components/response/ResponseControls.test.tsx
+- [x] T066 [P] Write unit tests for courts calculation logic in tests/utils/courts.test.ts
+- [x] T067 [P] Write unit tests for response validation logic in tests/validations/response.test.ts
+- [x] T068 [P] Write unit tests for session validation logic in tests/validations/session.test.ts
+- [x] T069 [P] Write component tests for SessionCard in tests/components/session/SessionCard.test.tsx
+- [x] T070 [P] Write component tests for ResponseControls in tests/components/response/ResponseControls.test.tsx
 
 ### Integration Testing
 
