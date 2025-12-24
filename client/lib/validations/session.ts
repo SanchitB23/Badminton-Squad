@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// Helper function to check if a date is in the future (IST)
-const isFutureDate = (dateString: string): boolean => {
+// Helper function to check if a date is at least 2 days in advance (IST)
+const isAtLeast2DaysInAdvance = (dateString: string): boolean => {
   const inputDate = new Date(dateString);
   const now = new Date();
   
@@ -10,7 +10,12 @@ const isFutureDate = (dateString: string): boolean => {
   const nowIST = new Date(now.getTime() + istOffset);
   const inputIST = new Date(inputDate.getTime() + istOffset);
   
-  return inputIST > nowIST;
+  // Calculate 2 days from now at 00:00 IST (start of the day)
+  const twoDaysFromNow = new Date(nowIST);
+  twoDaysFromNow.setDate(nowIST.getDate() + 2);
+  twoDaysFromNow.setHours(0, 0, 0, 0);
+  
+  return inputIST >= twoDaysFromNow;
 };
 
 // Helper function to check if two dates are on the same day in IST
@@ -59,9 +64,9 @@ export const sessionSchema = z.object({
     path: ["end_time"],
   }
 ).refine(
-  (data) => isFutureDate(data.start_time),
+  (data) => isAtLeast2DaysInAdvance(data.start_time),
   {
-    message: "Session must be scheduled for a future date and time",
+    message: "Sessions must be created at least 2 days in advance",
     path: ["start_time"],
   }
 ).refine(
