@@ -200,14 +200,20 @@ export function SessionCard({ session, currentUserId, onEdit, onDelete }: Sessio
               <span>{session.response_counts.COMING} Coming</span>
               {showParticipants ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className="flex items-center gap-1 hover:text-yellow-600 transition-colors"
+            >
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <span>{session.response_counts.TENTATIVE} Maybe</span>
-            </div>
-            <div className="flex items-center gap-1">
+            </button>
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className="flex items-center gap-1 hover:text-red-600 transition-colors"
+            >
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
               <span>{session.response_counts.NOT_COMING} Not coming</span>
-            </div>
+            </button>
           </div>
 
           {/* Courts info */}
