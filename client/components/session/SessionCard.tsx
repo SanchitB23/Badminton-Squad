@@ -1,8 +1,9 @@
 "use client";
 
 import { format } from "date-fns";
-import { MapPin, Clock, Users, Calendar, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { MapPin, Clock, Users, Calendar, MoreHorizontal, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -32,6 +33,13 @@ interface Session {
     id: string;
     name?: string;
   };
+  responses: Array<{
+    user_id: string;
+    status: "COMING" | "NOT_COMING" | "TENTATIVE";
+    user: {
+      name: string;
+    };
+  }>;
   response_counts: {
     COMING: number;
     TENTATIVE: number;
@@ -50,6 +58,7 @@ interface SessionCardProps {
 }
 
 export function SessionCard({ session, currentUserId, onEdit, onDelete }: SessionCardProps) {
+  const [showParticipants, setShowParticipants] = useState(false);
   const startTime = new Date(session.start_time);
   const endTime = new Date(session.end_time);
   const courts = calculateCourts(session.response_counts.COMING);
@@ -69,6 +78,11 @@ export function SessionCard({ session, currentUserId, onEdit, onDelete }: Sessio
   const today = new Date();
   const isSameDay = sessionDate.toDateString() === today.toDateString();
   const canEdit = isCreator && !isSameDay;
+
+  // Group responses by status
+  const comingUsers = session.responses?.filter(r => r.status === "COMING").map(r => r.user.name) || [];
+  const tentativeUsers = session.responses?.filter(r => r.status === "TENTATIVE").map(r => r.user.name) || [];
+  const notComingUsers = session.responses?.filter(r => r.status === "NOT_COMING").map(r => r.user.name) || [];
 
   const getStatusColor = (status: typeof playability.status) => {
     switch (status) {
@@ -178,10 +192,14 @@ export function SessionCard({ session, currentUserId, onEdit, onDelete }: Sessio
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 bg-muted/50 rounded-lg gap-2">
           {/* Response counts - Stack on very small screens */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className="flex items-center gap-1 hover:text-green-600 transition-colors"
+            >
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span>{session.response_counts.COMING} Coming</span>
-            </div>
+              {showParticipants ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </button>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <span>{session.response_counts.TENTATIVE} Maybe</span>
@@ -202,6 +220,50 @@ export function SessionCard({ session, currentUserId, onEdit, onDelete }: Sessio
             </div>
           </div>
         </div>
+
+        {/* Participants List - Collapsible */}
+        {showParticipants && (
+          <div className="space-y-2 p-3 bg-white border rounded-lg text-xs sm:text-sm">
+            {comingUsers.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="font-medium text-green-700">Coming ({comingUsers.length})</span>
+                </div>
+                <div className="ml-4 text-muted-foreground">
+                  {comingUsers.join(", ")}
+                </div>
+              </div>
+            )}
+            {tentativeUsers.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="font-medium text-yellow-700">Maybe ({tentativeUsers.length})</span>
+                </div>
+                <div className="ml-4 text-muted-foreground">
+                  {tentativeUsers.join(", ")}
+                </div>
+              </div>
+            )}
+            {notComingUsers.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="font-medium text-red-700">Not coming ({notComingUsers.length})</span>
+                </div>
+                <div className="ml-4 text-muted-foreground">
+                  {notComingUsers.join(", ")}
+                </div>
+              </div>
+            )}
+            {comingUsers.length === 0 && tentativeUsers.length === 0 && notComingUsers.length === 0 && (
+              <div className="text-muted-foreground text-center py-2">
+                No responses yet
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Current Response Indicator - Show prominently if no response */}
         {!session.user_response && (
