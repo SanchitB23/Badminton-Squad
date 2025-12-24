@@ -257,7 +257,7 @@ export default function SessionDetailPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         disabled={!canEdit}
-                        asChild={canEdit}
+                        asChild={!!canEdit}
                       >
                         {canEdit ? (
                           <Link href={`/dashboard/session/${session?.id || 'unknown'}/edit`}>
